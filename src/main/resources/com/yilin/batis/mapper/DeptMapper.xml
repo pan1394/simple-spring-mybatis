@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yilin.batis.mapper.DeptMapper">
+    <select id="findOne" parameterType="Integer" resultType="com.yilin.batis.domain.Dept">
+        select * from department where id = #{id}
+    </select>
+
+    <select id="list" resultType="com.yilin.batis.domain.Dept">
+        select id, department_name as departmentName from department
+    </select>
+
+    <insert id="save" parameterType="com.yilin.batis.domain.Dept" keyProperty="id" useGeneratedKeys="true">
+        insert into department(department_name) values(#{departmentName})
+    </insert>
+</mapper>
