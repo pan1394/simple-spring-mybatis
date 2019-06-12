@@ -12,6 +12,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * 此配置为实验环境配置， 不具备生产环境复杂环境需要。
+ * @author panyl
+ *
+ */
 @Configuration
 @EnableTransactionManagement 			//开启事务管理
 @MapperScan("com.yilin.batis.mapper") 	//映射器包扫描
