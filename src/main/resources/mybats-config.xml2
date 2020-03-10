@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 引入外部资源文件
+        resource:默认引入classpath路径下的资源文件
+        url：引入物理路径下的资源文件（如：d:\\jdbc.properties）
+     -->
+    <properties resource="jdbc.properties"></properties>
+    <!-- 设置参数 -->
+    <settings>
+        <!--  开启驼峰匹配：完成经典的数据库命名到java属性的映射
+                          相当于去掉数据中的名字的下划线，和java进行匹配
+        -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    <!-- 配置别名 -->
+    <typeAliases>
+        <!-- typeAlias:用来配置别名，方便映射文件使用，type:类的全限定类名,alias:别名 -->
+        <typeAlias type="cn.itcast.pojo.User" alias="User"/>
+    </typeAliases>
+    <!-- 配置环境：可以配置多个环境，default：配置某一个环境的唯一标识，表示默认使用哪个环境 -->
+    <environments default="development">
+        <!-- 配置环境,id:环境的唯一标识 -->
+        <environment id="development">
+            <!-- 事务管理器，type:使用jdbc的事务管理器 -->
+            <transactionManager type="JDBC" />
+            <!-- 数据源，type:池类型的数据源 -->
+            <dataSource type="POOLED">
+                <!-- 配置连接信息 -->
+                <property name="driver" value="${jdbc.driverClass}" />
+                <property name="url" value="${jdbc.url}" />
+                <property name="username" value="${jdbc.username}" />
+                <property name="password" value="${jdbc.password}" />
+            </dataSource>
+        </environment>
+    </environments>
+    <!-- 配置映射文件：用来配置sql语句和结果集类型等 -->
+    <mappers>
+        <mapper resource="UserMapper.xml" />
+        <mapper resource="UserDaoMapper.xml" />
+    </mappers>
+</configuration>
+————————————————
+版权声明：本文为CSDN博主「丶罗先森」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/luoxiao2554/article/details/80426985

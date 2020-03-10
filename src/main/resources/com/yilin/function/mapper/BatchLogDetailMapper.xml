@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yilin.function.mapper.BatchLogDetailMapper">
+
+  <resultMap id="BaseResultMap" type="com.yilin.function.entity.BatchLogDetails">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="BATCH_NO" jdbcType="VARCHAR" property="batchNo" />
+    <result column="JOB_NAME" jdbcType="VARCHAR" property="jobName" />
+    <result column="JOB_STATUS" jdbcType="VARCHAR" property="jobStatus" />
+    <result column="JOB_INDEX" jdbcType="INTEGER" property="jobIndex" /> 
+    <result column="MSG" jdbcType="VARCHAR" property="msg" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+      <result column="START_TIME" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+ 
+   <select id="select" resultType="com.yilin.function.entity.BatchLogDetails" parameterType="com.yilin.function.entity.BatchLogDetails">
+    	select * from TBL_BATCH_LOG_DETAILS where batch_id=#{detail.batchId}
+    </select>
+    
+   <insert id="insert" parameterType="com.yilin.function.entity.BatchLogDetails">
+  		 <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="detail.id">
+          SELECT LAST_INSERT_ID()
+         </selectKey>
+  		
+  		insert into TBL_BATCH_LOG_DETAILS  (BATCH_ID, BATCH_NO, JOB_NAME, JOB_STATUS, JOB_INDEX, CREATE_TIME, UPDATE_TIME) values 
+  			(#{detail.batchId}, #{detail.batchNo}, #{detail.jobName},  #{detail.jobStatus}, #{detail.jobIndex}, #{detail.createTime}, #{detail.createTime}  )
+   </insert> 
+   
+   
+   <insert id="insertHist" parameterType="com.yilin.function.entity.BatchLogDetails">
+	   		insert into TBL_BATCH_LOG_DETAILS
+	   		(batch_id, batch_no, job_name, job_status, job_index, save_point, create_time, update_time)
+			select #{detail.batchId}, batch_no, job_name, job_status, job_index, save_point, #{detail.createTime}, #{detail.createTime} 
+			from TBL_BATCH_LOG_DETAILS where batch_id = 
+			(  select distinct batch_id from TBL_BATCH_LOG_DETAILS where 1=1
+    			and batch_no = #{detail.batchNo}
+    			and create_time = (select max(create_time) from TBL_BATCH_LOG_DETAILS where batch_no = #{detail.batchNo})
+			)
+
+   </insert>
+   
+   <insert id="update" parameterType="com.yilin.function.entity.BatchLogDetails" >
+  		update TBL_BATCH_LOG_DETAILS  
+  			<set>
+  				<if test="detail.startTime != null">
+  			   	 START_TIME= #{detail.startTime},
+  			 	</if>
+  			 	<if test="detail.updateTime != null">
+  					UPDATE_TIME=#{detail.updateTime},
+  			 	</if>
+  			 	<if test="detail.jobStatus != null">
+  					JOB_STATUS=#{detail.jobStatus},
+  			 	</if>
+  			 	<if test="detail.savePoint != null">
+  					SAVE_POINT=#{detail.savePoint},
+  			 	</if>
+  			</set>
+  		where
+  		     id = #{detail.id}
+  			 
+   </insert> 
+ 	
+</mapper>

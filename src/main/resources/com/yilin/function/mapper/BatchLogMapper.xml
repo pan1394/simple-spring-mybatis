@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yilin.function.mapper.BatchLogMapper">
+
+  <resultMap id="BaseResultMap" type="com.yilin.function.entity.BatchLog">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="BATCH_NO" jdbcType="VARCHAR" property="batchNo" />
+    <result column="BATCH_STATUS" jdbcType="CHAR" property="batchStatus" />
+    <result column="BATCH_NAME" jdbcType="VARCHAR" property="batchName" />
+    <result column="EXECUTE_DATE" jdbcType="VARCHAR" property="executeDate" />
+    <result column="MSG" jdbcType="VARCHAR" property="msg" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
+    
+  </resultMap>
+  
+
+  <select id="selectBatchLog" parameterType="com.yilin.function.entity.BatchLog" resultType="com.yilin.function.entity.BatchLog">
+  	select * from TBL_BATCH_LOG t 
+  	<where>
+  		<if test="batchLog.batchName != null">
+  			t.BATCH_NAME = #{batchLog.batchName, jdbcType=VARCHAR} 
+  		</if>
+  		<if test="batchLog.executeDate != null"> 
+  			and t.EXECUTE_DATE = #{batchLog.executeDate, jdbcType=VARCHAR} 
+  		</if>
+  		<if test="batchLog.batchStatus != null"> 
+  			and t.BATCH_STATUS = #{batchLog.batchStatus, jdbcType=VARCHAR} 
+  		</if>
+  	</where>
+  </select>  
+  
+  
+   <update id="updateBatchLog" parameterType="com.yilin.function.entity.BatchLog" >
+  		update TBL_BATCH_LOG t 
+  			<set>
+  				<if test="batchLog.batchStatus != null">
+  					t.BATCH_STATUS = #{batchLog.batchStatus},
+  				</if>
+  				<if test="batchLog.batchName != null">
+  					t.BATCH_NAME = #{batchLog.batchName}
+  				</if>
+  			</set>
+  		where t.BATCH_NAME =#{batchLog.batchName} and t.EXECUTE_DATE =#{batchLog.executeDate}
+   </update>   
+   
+   <insert id="insertBatchLog" parameterType="com.yilin.function.entity.BatchLog" >
+  		insert into TBL_BATCH_LOG  (BATCH_NAME, BATCH_STATUS, EXECUTE_DATE) values 
+  			( #{batchLog.batchName} ,  #{batchLog.batchStatus}, #{batchLog.executeDate} )
+   </insert> 
+    
+    <insert id="insertBatchLogByCheckExist" parameterType="com.yilin.function.entity.BatchLog" >
+   		insert into TBL_BATCH_LOG  (BATCH_NAME, BATCH_STATUS, EXECUTE_DATE)  select  #{batchLog.batchName} ,  #{batchLog.batchStatus}, #{batchLog.executeDate} from dual 
+   			where not exists (
+   				select BATCH_NAME, BATCH_STATUS, EXECUTE_DATE from TBL_BATCH_LOG  where BATCH_NAME = #{batchLog.batchName}  
+   					and BATCH_STATUS = #{batchLog.batchStatus} and EXECUTE_DATE = #{batchLog.executeDate} 
+   			)
+ 	</insert> 
+ 	
+ 	
+ 	<insert id="insert" parameterType="com.yilin.function.entity.BatchLog" >
+   		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="batchLog.id">
+          SELECT LAST_INSERT_ID()
+         </selectKey>
+  		insert into TBL_BATCH_LOG  (BATCH_NO, BATCH_NAME, BATCH_STATUS, START_TIME, CREATE_TIME, UPDATE_TIME, EXECUTE_DATE) values 
+  			( #{batchLog.batchNo}, #{batchLog.batchName},  #{batchLog.batchStatus}, #{batchLog.createTime}, #{batchLog.createTime}, #{batchLog.createTime},  #{batchLog.executeDate})
+   </insert> 
+   
+    <select id="getCountBy" resultType="java.lang.Integer">
+    	select count(1) from TBL_BATCH_LOG where 
+    	batch_status=#{status} 
+      <!--   and date_format(create_time,'%Y%m%d')=#{date} -->
+    	and execute_date = #{date}
+    </select>
+    
+     <insert id="update" parameterType="com.yilin.function.entity.BatchLog" >
+  		update TBL_BATCH_LOG  
+  		<set>
+  		     BATCH_STATUS=#{batchLog.batchStatus},
+  		     UPDATE_TIME = #{batchLog.updateTime},
+  		     <if test="batchLog.failureIndex != null">
+  				 FAILURE_INDEX = #{batchLog.failureIndex} 
+  			 </if>
+  		</set>
+  		where id = #{batchLog.id}
+   </insert> 
+   
+    <select id="selectLatest" resultType="com.yilin.function.entity.BatchLog">
+    	select * from TBL_BATCH_LOG where BATCH_NO=#{batchNo} 
+    	and UPDATE_TIME = (select max(UPDATE_TIME) from TBL_BATCH_LOG where BATCH_NO=#{batchNo})
+    </select>
+</mapper>
