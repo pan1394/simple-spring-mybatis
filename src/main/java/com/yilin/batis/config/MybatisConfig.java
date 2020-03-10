@@ -84,3 +84,4 @@ public class MybatisConfig {
 		return new DataSourceTransactionManager(ds);
 	}
 }
+ 
