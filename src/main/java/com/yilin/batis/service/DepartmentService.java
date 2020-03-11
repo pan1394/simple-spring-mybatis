@@ -11,7 +11,7 @@ import com.yilin.batis.domain.Dept;
 import com.yilin.batis.mapper.DeptMapper;
 
 @Component
-@Transactional
+@Transactional(transactionManager = "tmPrimary")
 public class DepartmentService {
 
 	@Autowired
@@ -22,7 +22,7 @@ public class DepartmentService {
 			throw new IllegalArgumentException("wrong arugments");
 		}
 		deptMapper.save(new Dept(dept));
-		int i = 3/0;  //捕获运行时异常
+		//int i = 3/0;  //捕获运行时异常
 	}
 	
 	public List<Dept> listAllDepartments(){ 

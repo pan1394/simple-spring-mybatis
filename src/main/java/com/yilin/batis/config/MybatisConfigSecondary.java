@@ -7,7 +7,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -22,52 +21,48 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement // 开启事务管理
-@MapperScan(basePackages = { "com.yilin.batis.mapper"} , sqlSessionFactoryRef="sfPrimary") // 映射器包扫描
-public class MybatisConfig {
-
+@MapperScan(basePackages ={"com.yilin.function.mapper" }, sqlSessionFactoryRef="sfRemote") // 映射器包扫描
+public class MybatisConfigSecondary {
+ 
 	/**
 	 * spring自带实验用数据源 jar包： spring-jdbc
-	 * 
+	 *   使用多数据源， 对多个DataSource实体bean， 分别命名。
 	 * @return
 	 */
-	@Bean("dsPrimary")
+	@Bean(name = "dsRemote")
 	public DataSource dataSource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setDriverClassName("com.mysql.jdbc.Driver");
-//		ds.setDriverClassName("com.mysql.cj.jdbc.Driver");  注意pom文件中mysql的版本问题
-//		ds.setUrl("jdbc:mysql://47.104.128.12:3306/tuling-vip");
-//		ds.setUsername("root");
-//		ds.setPassword("123456");
-
-//		ds.setUrl("jdbc:mysql://94.191.115.206:3306/batch-track");  //ip: 21
-//		ds.setUsername("");
-//		ds.setPassword("");
-
- 		ds.setUrl("jdbc:mysql://localhost:3306/housecom");   
- 		ds.setUsername("root");
- 		ds.setPassword("");
-
-//		ds.setUrl("jdbc:mysql://.mysql.database.azure.com:3306/housecompoc?useSSL=true&requireSSL=false&serverTimezone=UTC&autoReconnect=true");
-// 		ds.setUsername("");
-// 		ds.setPassword("");
+		ds.setDriverClassName("com.mysql.jdbc.Driver"); 
+		ds.setUrl("jdbc:mysql://94.191.115.206:3306/batch-track");  //ip: 21
+		ds.setUsername("");
+		ds.setPassword("");
 		return ds;
 	}
 
 	/**
 	 *   创建SqlSessionFactory
-	 *   使用@Autowired 变量名指定DataSource实体Bean name.
+	 *   命名SqlSessionFactory实体bean, 用语@MapperScan注解的sqlSessionFactoryRef属性。
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean("sfPrimary")
-	public SqlSessionFactory sqlSessionFactory(@Autowired DataSource dsPrimary) throws Exception {
+	@Bean(name = "sfRemote")
+	@Autowired
+	public SqlSessionFactory sqlSessionFactory() throws Exception {
 		SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
-		factoryBean.setDataSource(dsPrimary);
+		/**
+		 * 直接调用此类方法， 进行注入。
+		 * **/
+		factoryBean.setDataSource(dataSource());
 		factoryBean.setConfiguration(configuration());
 		return factoryBean.getObject();
 	}
 
-	@Bean("mybatis-conf")
+	/**
+	 *   不可以使用相同的Configuration实体Bean, 因为这个Bean带有Mapper.xml相关数据信息，
+	 *   如果使用相同Configuration实体Bean, 会去该库中查询相关表信息是否存在。
+	 * @return
+	 */
+	@Bean(name = "confRemote") 
 	public org.apache.ibatis.session.Configuration configuration() {
 		org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
 		//开启驼峰映射 
@@ -78,14 +73,16 @@ public class MybatisConfig {
 	}
 
 	/**
-	 *    创建Spring事务管理器
-	 *    使用@Qualifier 指定名称注入
+	 *   创建Spring事务管理器
+	 *   命名事务管理器实体Bean, 用语@Transactional的属性transactionManager
+	 *   调用dataSource()， 配合@Autowired 注入
 	 * @param ds
 	 * @return
 	 */
-	@Bean("tmPrimary")
-	public DataSourceTransactionManager transactionManager(@Qualifier("dsPrimary") DataSource ds) {
-		return new DataSourceTransactionManager(ds);
+	@Bean("tmRemote")
+	@Autowired
+	public DataSourceTransactionManager transactionManager() {
+		return new DataSourceTransactionManager(dataSource());
 	}
 }
  

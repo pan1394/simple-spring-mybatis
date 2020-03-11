@@ -13,7 +13,7 @@ import com.yilin.function.dto.BatchOutDto;
 @ComponentScan //spring容器包扫描此包及其子包下的bean
 public class Main {
 
-	public static void main(String[] args) {
+	public static void mainx(String[] args) {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Main.class);
 		
 		String[] all = ctx.getBeanDefinitionNames();
@@ -30,7 +30,7 @@ public class Main {
 		System.out.println(result.getDesc());
 	}
 	
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Main.class);
 		DepartmentService service = ctx.getBean(DepartmentService.class);
 		try {
@@ -42,5 +42,7 @@ public class Main {
 		
 		//上面数据没有被插入数据库
 		service.listAllDepartments().stream().forEach(System.out::println);
+		
+		mainx(args);
 	}
 }
